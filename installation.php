@@ -1,337 +1,440 @@
-<?php session_start(); ?>
-<?php ob_start(); ?>
-<?php
-include_once('configuration.php');
-include_once('include/global.php');
-include_once('include/language.php');
-?>
+<?php if(@$db['default']['username'] == '' or !isset($db['default']['username'])) : ?>	
+
+
 <!DOCTYPE html>
-
-<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<html>
 <head>
-  <meta charset="utf-8" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TilPark! Açık Kaynak Kodlu Stok Takip ve Cari Otomasyonu</title>
+<meta name="description" content="Bootstrap">
 
-  <!-- Set the viewport width to device width for mobile -->
-  <meta name="viewport" content="width=device-width" />
 
-  <title><?php config('name'); ?></title>
+<!-- Included CSS Files (Compressed) -->
 
-  <!-- Included CSS Files -->
-  <link rel="stylesheet" href="<?php url('theme'); ?>/stylesheets/foundation.css">
-  <link rel="stylesheet" href="<?php url('theme'); ?>/stylesheets/app.css">
+<link href="<?php echo base_url('theme/css/bootstrap-glyphicons.css'); ?>" rel="stylesheet">
+<link rel="stylesheet" href="<?php echo base_url('theme/css/bootstrap.css'); ?>">
 
-  <!-- Included JS Files (Compressed) -->
-  <script src="<?php url('theme'); ?>/javascripts/modernizr.foundation.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/foundation.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.navigation.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.reveal.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.orbit.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.buttons.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.tabs.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.forms.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.tooltips.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.accordion.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.placeholder.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.foundation.alerts.js"></script>
-  <script src="<?php url('theme'); ?>/javascripts/jquery.validate.js"></script>
-  <!-- Initialize JS Plugins -->
-  <script src="<?php url('theme'); ?>/javascripts/app.js"></script>
+<link rel="stylesheet" href="<?php echo base_url('theme/css/datepicker.css'); ?>">
+<link rel="stylesheet" href="<?php echo base_url('theme/js/dataTable/css/TableTools.css'); ?>">
+<link rel="stylesheet" href="<?php echo base_url('theme/css/app.css'); ?>">
 
-  <!-- IE Fix for HTML5 Tags -->
-  <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="<?php echo base_url('theme/js/jquery.js'); ?>"></script>
+<script src="<?php echo base_url('theme/js/bootstrap.js'); ?>"></script> 
+<script src="<?php echo base_url('theme/js/jquery.validation.js'); ?>"></script> 
+
+<script src="<?php echo base_url('theme/js/bootstrap-datepicker.js'); ?>"></script> 
+
+
+<script src="<?php echo base_url('theme/js/jquery.dataTables.js'); ?>"></script> 
+<script src="<?php echo base_url('theme/js/dataTable/js/ZeroClipboard.js'); ?>"></script> 
+<script src="<?php echo base_url('theme/js/dataTable/js/TableTools.js'); ?>"></script>
+
+<!-- Initialize JS Plugins -->
+<script src="<?php echo base_url('theme/js/app.js'); ?>"></script>
+
 
 </head>
 <body>
 
-<p></p>
-<?php  if(is_writable('configuration.php')) : ?>
-<div class="row">
-	<div class="five columns end">
+<div class="container bg" style="padding-top:10px;">
+
+	<div class="text-center">
+        <h1 class="ff-1">Kuruluma Hoşgeldiniz?</h1>
+        <p class="ff-1">TilPark! kurulumu çok kolaydır. Bir kaç dakika içerisinde kurulumu tamamlayabilirsiniz.</p>
+    </div>
+    
+    <div class="h20"></div>
+    
+    
     <?php
-	if(isset($_POST['btn_installation']))
+	if(isset($_POST['hostname']))
 	{
-		$continue = true;
-		$db_host		=	trim(strip_tags($_POST['db_host']));
-		$db_user_name	=	trim(strip_tags($_POST['db_user_name']));
-		$db_password	=	trim(strip_tags($_POST['db_password']));
-		$db_name		=	trim(strip_tags($_POST['db_name']));
-		$prefix			=	trim(strip_tags($_POST['prefix']));
-		$user_name		=	trim(strip_tags($_POST['user_name']));
-		$password		=	trim(strip_tags($_POST['password']));
-		$url 			= 	'http://'.$_SERVER['SERVER_NAME'].str_replace('/installation.php', '', $_SERVER['SCRIPT_NAME']);
-		 
-		$db_connect = @mysql_connect($db_host,$db_user_name,$db_password);
-			if(!$db_connect){ alert_box('alert', get_lang('No connection to the server'));  $continue = false; }
-		$db_select = mysql_select_db($db_name);
-			if(!$db_select){ alert_box('alert', get_lang('The database was not found')); $continue = false; }
+		$continue 	= true;
+		$hostname 	= $_POST['hostname'];
+		$username 	= $_POST['username'];
+		$password 	= $_POST['password'];
+		$database 	= $_POST['database'];
 		
-		$user_name		=	safety_filter($user_name);
-		$password		=	safety_filter($password);
+		$dbprefix 	= $_POST['dbprefix'];
 		
-		if(strlen($user_name) < 3) 	{	$continue = false;	alert_box('alert', get_lang('User Name').' 3 '.get_lang('Minimum Characters'));	}
-		if(strlen($user_name) > 20) {	$continue = false;	alert_box('alert', get_lang('User Name').' 20 '.get_lang('Maximum Characters'));}
-		if(filter_var($user_name, FILTER_VALIDATE_EMAIL)) {}
-		else if(preg_match("/[^A-Za-z1-9]/i",$user_name)) {	$continue = false;	alert_box('alert', get_lang('User name incorrect'));		}
-		if(strlen($password) < 3) 	{	$continue = false;	alert_box('alert', get_lang('Password').' 3 '.get_lang('Minimum Characters'));	}
-		if(strlen($password) > 20) 	{	$continue = false;	alert_box('alert', get_lang('Password').' 20 '.get_lang('Maximum Characters'));	}			
-			$password = md5($password);
+		$admin_email 	= $_POST['admin_email'];
+		$admin_pass 	= $_POST['admin_pass'];
 		
-		if($continue == true)
+		
+		$config_text = '<?php  if ( ! defined(\'BASEPATH\')) exit(\'No direct script access allowed\');
+$db[\'default\'][\'hostname\'] = \''.$hostname.'\';
+$db[\'default\'][\'username\'] = \''.$username.'\';
+$db[\'default\'][\'password\'] = \''.$password.'\';
+$db[\'default\'][\'database\'] = \''.$database.'\';
+$db[\'default\'][\'dbdriver\'] = \'mysql\';
+$db[\'default\'][\'dbprefix\'] = \''.$dbprefix.'\';
+?>';
+
+		
+		$con = @mysql_connect($hostname, $username, $password);
+		if(!$con) 
 		{
-			# configuration.php			
-			$cnc_config_file = fopen( "configuration.php" , "w" ) or die ("Unable to open file!");
-			$cnc_text = '
-			<?php
-			/* ----------------------------------------------
-			MYSQL DATABASE SETTINGS
-			---------------------------------------------- */
-			$db_host = \''.$db_host.'\'; 
-			$db_name = \''.$db_name.'\';
-			$db_user_name = \''.$db_user_name.'\';
-			$db_password = \''.$db_password.'\';
-			$prefix = \''.$prefix.'\';
-			$url = \''.$url.'\';
-			?>
-			';
-			fwrite ( $cnc_config_file , $cnc_text ) ;
-			fclose ( $cnc_config_file );  
-				
-			mysql_query("CREATE TABLE ".$prefix."users
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				status VARCHAR(20),
-				user_name VARCHAR(50),
-				password VARCHAR(100),
-				level CHAR(1),
-				display_name VARCHAR(50)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			mysql_query("INSERT INTO ".$prefix."users
-			(status, user_name, password, level, display_name)
-			VALUES
-			('publish', '$user_name', '$password', '1', '')
-			");
-				
-				
-					
-			mysql_query("CREATE TABLE ".$prefix."meta
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				ref_id INT,
-				title VARCHAR(255),
-				meta_key VARCHAR(255),
-				meta_value VARCHAR(255)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			mysql_query("INSERT INTO ".$prefix."meta
-			(ref_id, title, meta_key, meta_value)
-			VALUES
-			('', 'settings', 'language', 'english.php')");
-			
-			
-			
-			mysql_query("CREATE TABLE ".$prefix."message
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				status VARCHAR(20),
-				type VARCHAR(20),
-				last_state VARCHAR(20),
-				top_id INT,
-				start_date DATETIME,
-				end_date DATETIME,
-				last_date DATETIME,
-				sender_id INT,
-				receiver_id INT,
-				inbox_id INT,
-				title VARCHAR(255),
-				description TINYTEXT,
-				task_status VARCHAR(20)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			
-			
-			
-			mysql_query("CREATE TABLE ".$prefix."logs
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				date DATETIME,
-				user_id INT,
-				product_id INT,
-				current_id INT,
-				fiche_id INT,
-				title VARCHAR(255),
-				description VARCHAR(255)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			
-			
-			/* ----- PRODUCT ----- */
-			mysql_query("CREATE TABLE ".$prefix."products
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				status VARCHAR(20) DEFAULT 'publish',
-				code VARCHAR(50),
-				name VARCHAR(50),
-				cost_price DECIMAL(15,4),
-				sale_price DECIMAL(15,4),
-				quantity DECIMAL(15,5)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			
-			
-			/* ----- CURRENT ----- */
-			mysql_query("CREATE TABLE ".$prefix."currents
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				status VARCHAR(20) DEFAULT 'publish',
-				code VARCHAR(50),
-				name VARCHAR(50),
-				balance DECIMAL(15,4)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			
-			
-			/* ----- FICHE ----- */
-			mysql_query("CREATE TABLE ".$prefix."fiche
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				status VARCHAR(20) DEFAULT 'publish',
-				type VARCHAR(20),
-				date DATETIME,
-				current_id INT,
-				total DECIMAL(15,4),
-				tax_rate INT(3),
-				tax DECIMAL(15,4),
-				grand_total DECIMAL(15,4),
-				fiche_items INT
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			
-			
-			/* ----- FICHE ITEMS ----- */
-			mysql_query("CREATE TABLE ".$prefix."fiche_items
-			(
-				id INT NOT NULL AUTO_INCREMENT, 
-				PRIMARY KEY(id),
-				status VARCHAR(20) DEFAULT 'publish',
-				type VARCHAR(20),
-				date DATETIME,
-				fiche_id INT,
-				current_id INT,
-				product_id INT,
-				quantity DECIMAL(15,4),
-				cost_price DECIMAL(15,4),
-				price DECIMAL(15,4),
-				total DECIMAL(15,4)
-			)
-			CHARACTER SET utf8 COLLATE utf8_general_ci
-			");
-			echo mysql_error();
-			
-			
-			echo '<script> window.location = "?success"; </script>';
+			alertbox('alert-danger', mysql_error());
+			$continue 	= false;
 		}
+		
+		$db_select = mysql_select_db($database);
+		if(!$db_select) 
+		{
+			alertbox('alert-danger',mysql_error());
+			$continue 	= false;
+		}
+		
+		$write = true;
+		# veritabanı tablo isimleri
+		$t_accounts 		= $dbprefix.'accounts';
+		$t_files 			= $dbprefix.'files';
+		$t_invoices 		= $dbprefix.'invoices';
+		$t_invoice_items 	= $dbprefix.'invoice_items';
+		$t_options		 	= $dbprefix.'options';
+		$t_products		 	= $dbprefix.'products';
+		$t_product_serials 	= $dbprefix.'product_serials';
+		$t_users		 	= $dbprefix.'users';
+		$t_user_logs	 	= $dbprefix.'user_logs';
+		$t_user_mess	 	= $dbprefix.'user_mess';
+		
+		
+		
+		/* -- ACCOUNTS -- */
+		mysql_query("DROP TABLE $t_accounts");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_accounts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(11) NOT NULL DEFAULT '1',
+  `code` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `name` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `name_surname` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `balance` decimal(10,4) NOT NULL,
+  `phone` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `gsm` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `email` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `address` varchar(250) COLLATE utf8_turkish_ci NOT NULL,
+  `county` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `city` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `description` varchar(500) COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=25 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_files");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_files` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(1) NOT NULL DEFAULT '1',
+  `date` datetime NOT NULL,
+  `key` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `other_id` int(11) NOT NULL,
+  `file` varchar(500) COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=9 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_invoices");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_invoices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(11) NOT NULL DEFAULT '1',
+  `date` datetime NOT NULL,
+  `type` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `in_out` int(1) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `description` varchar(250) COLLATE utf8_turkish_ci NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `total` decimal(10,4) NOT NULL,
+  `tax` decimal(10,4) NOT NULL,
+  `discount` decimal(10,4) NOT NULL,
+  `grand_total` decimal(10,4) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `val_1` text COLLATE utf8_turkish_ci NOT NULL,
+  `val_2` text COLLATE utf8_turkish_ci NOT NULL,
+  `val_3` text COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=128 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_invoice_items");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_invoice_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(1) NOT NULL DEFAULT '1',
+  `date` datetime NOT NULL,
+  `type` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `in_out` int(1) NOT NULL DEFAULT '1',
+  `invoice_id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `product_serial_id` int(50) NOT NULL,
+  `cost_price` decimal(10,4) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `quantity_price` decimal(10,4) NOT NULL,
+  `total` decimal(10,4) NOT NULL,
+  `tax_rate` int(11) NOT NULL,
+  `tax` decimal(10,4) NOT NULL,
+  `sub_total` decimal(10,4) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `product_code` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `product_name` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=149 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_options");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_options` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `option_group` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `option_key` varchar(250) COLLATE utf8_turkish_ci NOT NULL,
+  `option_value` varchar(500) COLLATE utf8_turkish_ci NOT NULL,
+  `option_value2` varchar(500) COLLATE utf8_turkish_ci NOT NULL,
+  `option_value3` text COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=713 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_products");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_products` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(1) NOT NULL DEFAULT '1',
+  `code` varchar(50) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 NOT NULL,
+  `description` varchar(200) CHARACTER SET utf8 NOT NULL,
+  `cost_price` decimal(10,2) NOT NULL,
+  `sale_price` decimal(10,2) NOT NULL,
+  `tax_rate` int(11) NOT NULL,
+  `tax` decimal(10,2) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `serial` int(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=58 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_product_serials");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_product_serials` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(1) NOT NULL DEFAULT '1',
+  `product_id` int(11) NOT NULL,
+  `serial` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `invoice_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=37 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_users");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(1) NOT NULL DEFAULT '1',
+  `email` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `name` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `surname` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `password` varchar(32) COLLATE utf8_turkish_ci NOT NULL,
+  `role` int(1) NOT NULL,
+  `avatar` varchar(250) COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=8 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_user_logs");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_user_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` datetime NOT NULL,
+  `type` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `other_id` varchar(30) COLLATE utf8_turkish_ci NOT NULL,
+  `title` varchar(100) COLLATE utf8_turkish_ci NOT NULL,
+  `description` varchar(250) COLLATE utf8_turkish_ci NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `invoice_id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `ip` varchar(15) COLLATE utf8_turkish_ci NOT NULL,
+  `browser` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `platform` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=1321 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		
+		/* -- FILES -- */
+		mysql_query("DROP TABLE $t_user_mess");
+		mysql_query("CREATE TABLE IF NOT EXISTS `$t_user_mess` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(1) NOT NULL DEFAULT '1',
+  `date` datetime NOT NULL,
+  `type` varchar(20) COLLATE utf8_turkish_ci NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `top_id` int(11) NOT NULL,
+  `title` varchar(50) COLLATE utf8_turkish_ci NOT NULL,
+  `content` text COLLATE utf8_turkish_ci NOT NULL,
+  `read` varchar(20) COLLATE utf8_turkish_ci NOT NULL DEFAULT '0',
+  `read_date` datetime NOT NULL,
+  `inbox_view` int(1) NOT NULL DEFAULT '1',
+  `recent_activity` datetime NOT NULL,
+  `start_date` datetime NOT NULL,
+  `finish_date` datetime NOT NULL,
+  `task_status` varchar(20) COLLATE utf8_turkish_ci NOT NULL DEFAULT 'open',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci AUTO_INCREMENT=239 ;
+		");
+		if(mysql_error()) { alert_box(mysql_error(), 'alert'); $write = false; }
+		
+		
+		
+		$admin_pass 	= md5($admin_pass);
+		mysql_query("INSERT INTO $t_users (email, name, surname, password, role) VALUES ('$admin_email', 'ADMIN', 'ADMIN', '$admin_pass', '1')");
+		
+		
+		if($write)
+		{
+			$file_config	=	"config.php";
+			if (!file_exists ("$file_config") ) 
+			{
+				touch ($file_config);
+			}
+			
+			$file_conntect = @fopen ("$file_config",'w');
+			if(!$file_conntect) 
+			{
+				alertbox('alert-danger','config.php dosyası açılmadı.');   
+			}
+			
+			
+			
+			if (@fputs ($file_conntect, $config_text)) 
+			{
+				echo '<script>document.location.reload(true);</script>';
+			}
+			else 
+			{
+				alertbox('alert-danger','config.php dosyası açıldı fakat veri yazılamadı. [lütfen CMHOD değerlerini 777 yapın]');
+			}
+			@fclose($file_conntect);	
+		}
+		
+		
 	}
 	?>
-    </div>
-</div> <!-- /.row -->
-
-<?php if(isset($_GET['success'])) : ?>
-
-<div class="row">
-	<div class="twelve columns">
-    	<div class="alert-box success"><h3><?php lang('Installation was successful'); ?></h3></div>
-        <a href="login.php" class="button"><?php lang('Login'); ?> &raquo;</a>
-    </div>
-</div>
-
-<?php else : ?>
-
-<div class="row">
-	<div class="twelve columns">
-    	<h3><?php lang('Welcome to the installation'); ?></h3>
-    </div>
-</div>
-
-<form name="form_installation" id="form_installation" action="" method="POST">
-	<div class="row">
-		<div class="six columns">
-        	<fieldset>
-          	<legend><?php lang('Installation'); ?></legend>
     
-            <label for="db_host"><?php lang('Host'); ?></label>
-            <input type="text" name="db_host" id="db_host" class="required" minlength="3" maxlength="20" placeholder="localhost" value="localhost" />
-            
-            <label for="db_user_name"><?php lang('Database User Name'); ?></label>
-            <input type="text" name="db_user_name" id="db_user_name" class="required" />  
-            
-            <label for="db_password"><?php lang('Database Password'); ?></label>
-            <input type="text" name="db_password" id="db_password" />  
-            
-            <label for="db_name"><?php lang('Database Name'); ?></label>
-            <input type="text" name="db_name" id="db_name" class="required" />
-            
-            <label for="prefix"><?php lang('Prefix'); ?></label>
-            <input type="text" name="prefix" id="prefix" placeholder="cnc_" />          
-    			   
-        </fieldset>
-        </div> <!-- /.six columns -->
-        <div class="six columns">
-        <fieldset>
-			<legend><?php lang('Admin'); ?></legend>
-    
-            <label for="user_name"><?php lang('User Name'); ?></label>
-            <input type="text" name="user_name" id="user_name" class="required" maxlength="20" minlength="3" />  
-            
-            <label for="password"><?php lang('Password'); ?></label>
-            <input type="text" name="password" id="password" class="required" maxlength="20" minlength="3" />  
-                 
-        </fieldset>
-        </div> <!-- /.six columns -->
-	</div> <!-- /.row -->
-    <div class="row">
-    	<div class="twelve columns">
-        	<input type="submit" name="btn_installation" id="btn_installation" class="button" value="<?php lang('Install'); ?> &raquo;" />
-        </div>
-    </div>
-</form>
-
-<?php endif ; ?>
-
-<?php else : ?>
-
-<div class="row">
-	<div class="twelve columns">
-    	<?php alert_box('alert', get_lang('configuration.php file not writable. Please CHMOD value to 777.')); ?>
-    </div>
+   
+	<form name="setup" id="setup" action="" method="POST" class="validation">
+         <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="hostname" class="control-label ff-1 fs-16"> Sunucu adresi</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="text" id="hostname" name="hostname" class="form-control ff-1 required valid" placeholder="localhost" maxlength="50" value="localhost">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+                <div class="form-group">
+                    <label for="username" class="control-label ff-1 fs-16">Kullanıcı adı</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="text" id="username" name="username" class="form-control ff-1 required" placeholder="" maxlength="50" value="">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+                <div class="form-group">
+                    <label for="password" class="control-label ff-1 fs-16">Şifresi</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="text" id="password" name="password" class="form-control ff-1" placeholder="" maxlength="50" value="">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+                <div class="form-group">
+                    <label for="database" class="control-label ff-1 fs-16">Veritabanı adı</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="text" id="database" name="database" class="form-control ff-1 required valid" placeholder="" maxlength="50" value="">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+            	<div class="form-group">
+                    <label for="dbprefix" class="control-label ff-1 fs-16">Veritabanı ön eki</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="text" id="dbprefix" name="dbprefix" class="form-control ff-1" placeholder="til_" maxlength="50" value="til_">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+                
+            </div> <!-- /.col-md-6 -->
+            <div class="col-md-4">
+            	<div class="form-group">
+                    <label for="admin_email" class="control-label ff-1 fs-16">Yöneti e-posta</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="text" id="admin_email" name="admin_email" class="form-control required email ff-1" placeholder="example@example.com" maxlength="100" value="">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+                <div class="form-group">
+                    <label for="admin_pass" class="control-label ff-1 fs-16">Yöneti şifre</label>
+                    <div class="input-prepend input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-text-width"></span></span>
+                        <input type="password" id="admin_pass" name="admin_pass" class="form-control required ff-1" placeholder="" maxlength="50" value="">
+                    </div>
+                </div> <!-- /.form-group -->
+                
+                
+            </div>
+            <div class="col-md-3"></div>
+		</div> <!-- /.row -->
+        
+        <div class="h20"></div>
+        
+        <div class="row">
+        	<div class="col-md-10">
+                <div class="text-right">
+                	<button class="btn btn-lg btn-success">Kurulumu Tamamla</button>
+                </div>
+        	</div>
+        </div> <!-- /.row -->
+        <div class="h20"></div>
+	</form>
+    	
 </div>
 
-<?php endif; ?> 
+</body>
+</html>
+
+
+
+
+<?php exit; ?>
+<?php else: ?>
+<?php endif; ?>
